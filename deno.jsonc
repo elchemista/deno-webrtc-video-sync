@@ -1,0 +1,16 @@
+{
+  "tasks": {
+    "start": "deno run -A server.ts",
+    "dev": "deno run -A --watch server.ts --dev",
+    "tailwind": "tailwind -i app.css -o public/style.css -w",
+    "tailwind:build": "tailwind -i app.css -o public/style.css -m"
+  },
+  "compilerOptions": {
+    "jsxFactory": "n",
+    "jsxFragmentFactory": "n.Fragment",
+    "lib": [
+      "deno.window",
+      "DOM"
+    ]
+  }
+}
