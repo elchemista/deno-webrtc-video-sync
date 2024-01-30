@@ -1,4 +1,6 @@
 import {FC, Helmet, n} from "../deps.ts";
+
+
 const Base: FC = ({children}) => {
     return (
         <>
@@ -9,13 +11,12 @@ const Base: FC = ({children}) => {
                 <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
                 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
                 <title>RINA Movie</title>
-                <script src={"/assets/fingerprint.js"}></script>
                
                 <meta name="author" content="Elchemista" />
                 <meta name="description" content="Simple webRTC with Deno native websocket" />
 
             </Helmet>
-                <div className="w-full h-full dark:bg-black" id="app">
+                <div className="w-full h-screen bg-gray-800" id="app">
                 {children}
             </div>
         </>

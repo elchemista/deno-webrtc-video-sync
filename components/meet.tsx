@@ -23,6 +23,13 @@ const Meet: FC<{ isDev: boolean }> = ({ isDev }) => {
             </a>
             </li>
             <li>
+            <a type="button" id="switchMedia" onclick="switchMedia()" data-tooltip-target="tooltip-share" data-tooltip-placement="left" class="block py-1 px-1 md:p-0 text-white rounded md:bg-transparent md:text-blue-700 md:dark:text-blue-500">
+            <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16h13M4 16l4-4m-4 4 4 4M20 8H7m13 0-4 4m4-4-4-4"/>
+            </svg>
+            </a>
+            </li>
+            <li>
             <a id="muteButton" type="button" onclick="toggleMute()" data-tooltip-target="tooltip-share" data-tooltip-placement="left" class="block py-1 px-1 md:p-0 text-white rounded md:bg-transparent md:text-blue-700 md:dark:text-blue-500">
               <svg class="w-6 h-6 text-red-800 dark:text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"></line><path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6"></path><path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2a7 7 0 0 1-.11 1.23"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
             </a>
@@ -43,6 +50,13 @@ const Meet: FC<{ isDev: boolean }> = ({ isDev }) => {
             </a>
             </li>
             <li>
+            <a type="button" onclick="changeVideoSource()" data-tooltip-target="tooltip-share" data-tooltip-placement="left" class="block py-1 px-1 md:p-0 text-white rounded md:bg-transparent md:text-blue-700 md:dark:text-blue-500">
+            <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+              <path fill-rule="evenodd" d="M8.6 5.2A1 1 0 0 0 7 6v12a1 1 0 0 0 1.6.8l8-6a1 1 0 0 0 0-1.6l-8-6Z" clip-rule="evenodd"/>
+            </svg>
+            </a>
+            </li>
+            <li>
             <a type="button" onclick="logout()" data-tooltip-target="tooltip-share" data-tooltip-placement="left" class="block py-1 px-1 md:p-0 text-white rounded md:bg-transparent md:text-blue-700 md:dark:text-blue-500">
             <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H8m12 0-4 4m4-4-4-4M9 4H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h2"/>
@@ -55,11 +69,16 @@ const Meet: FC<{ isDev: boolean }> = ({ isDev }) => {
         </div>
       </nav>
       
-      <div id="meet" className="z-10 absolute top-0 right-4 m-2">
+      <div id="meet" className="z-10 absolute top-0 right-4">
         <div className="row w-full h-full" id="videos">
-          <div class="container">
-            <video id="localVideo" class="rounded" autoplay muted></video>
-          </div>
+          <div class="container m-1 text-center justify-center">
+            <video id="localVideo" layout="fill" alt="img-blur-shadow" autoplay muted></video>
+            <div class="opacity-75 p-1 text-center rounded-xl bg-white bg-clip-border text-gray-700 shadow-md">
+              <span id="me" class="block text-center font-sans text-md font-semibold leading-snug tracking-normal text-blue-gray-900 antialiased">
+                Loading
+              </span>
+            </div>
+            </div>
         </div>
 
         <div class="chat-container fixed bottom-16 right-4 w-96" id="chatbox" style={{ display: "none" }}>
@@ -71,7 +90,7 @@ const Meet: FC<{ isDev: boolean }> = ({ isDev }) => {
           </button>
           <div class="chat-inner p-4 h-80 overflow-y-auto" id="chatMessage">
           </div>
-          <form class="p-4 border-t flex" style={{ position: "absolute", bottom: 10 }} id="chatForm">
+          <form class="w-full p-4 border-t flex" style={{ position: "absolute", bottom: 10 }} id="chatForm">
             <input
               type="text"
               placeholder="Type a message"

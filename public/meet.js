@@ -48,6 +48,56 @@ fork.openChat = () => {
   chatbox.style.display = "block";
   setTimeout(() => chatInput.focus(), 300);
 };
+fork.changeVideoSource = () => {
+  const newUrl = prompt("Enter the URL of the video:");
+  if (newUrl) {
+    const videoElement = document.getElementById('videoPlayer');
+    videoElement.className = ""
+    if (videoElement) {
+      const sourceElement = videoElement.querySelector('source');
+      sourceElement.setAttribute('src', newUrl);
+      videoElement.load();
+      videoElement.play();
+    } else {
+      alert('Video player not found');
+    }
+  }
+};
+
+fork.switchMedia = () => {
+  if (constraints.video.facingMode.ideal === "user") {
+    constraints.video.facingMode.ideal = "environment";
+  } else {
+    constraints.video.facingMode.ideal = "user";
+  }
+  const tracks = localStream.getTracks();
+  tracks.forEach(function (track) {
+    track.stop();
+  });
+  localVideo.srcObject = null;
+  navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
+    for (const id in peers) {
+      for (const index in peers[id].streams[0].getTracks()) {
+        for (const index2 in stream.getTracks()) {
+          if (
+            peers[id].streams[0].getTracks()[index].kind ===
+              stream.getTracks()[index2].kind
+          ) {
+            peers[id].replaceTrack(
+              peers[id].streams[0].getTracks()[index],
+              stream.getTracks()[index2],
+              peers[id].streams[0],
+            );
+            break;
+          }
+        }
+      }
+    }
+    localStream = stream;
+    localVideo.srcObject = stream;
+  });
+};
+
 fork.closeChat = () => chatbox.style.display = "none";
 
 function setVideoDimensions() {
@@ -103,6 +153,7 @@ function handleMessage({ type, data }, stream) {
       ws.send(JSON.stringify({ type: "initSend", data }));
       break;
     case "opening":
+      document.getElementById("me").innerHTML = `${data.id}`;
       setupLocalStream(stream, data);
       break;
     case "initSend":
@@ -116,16 +167,7 @@ function handleMessage({ type, data }, stream) {
       break;
     case "signal":
       if (peers[data.id] && !peers[data.id].destroyed) {
-        try {
-          peers[data.id].signal(data.signal);
-        } catch (error) {
-          if (error.name === "InvalidStateError") {
-            console.error("Signal error: Peer is in an invalid state", error);
-            // Handle the error, possibly by ignoring this signal or resetting the peer connection
-          } else {
-            throw error; // Re-throw errors that are not handled here
-          }
-        }
+        peers[data.id].signal(data.signal);
       }
       break;
     case "full":
@@ -164,10 +206,26 @@ function removePeer(id) {
 }
 
 function addPeer(id, am_initiator) {
-  peers[id] = new SimplePeer({ initiator: am_initiator, stream: localStream, config: configuration });
-  peers[id].on("signal", data => ws.send(JSON.stringify({ type: "signal", data: { signal: data, id } })));
+  peers[id] = new SimplePeer({
+    initiator: am_initiator,
+    reconnectTimer: 5000,
+    stream: localStream,
+    config: configuration,
+    trickle: false
+  });
+
+  // Add a property to track if an answer is expected
+  peers[id].isExpectingAnswer = false;
+
+  peers[id].on("signal", data => {
+    if (data.type === 'offer') {
+      peers[id].isExpectingAnswer = true;
+    }
+    ws.send(JSON.stringify({ type: "signal", data: { signal: data, id } }));
+  });
+
   peers[id].on("stream", (stream) => {
-    createVideoElement(id, stream)
+    createVideoElement(id, stream);
     setVideoDimensions();
   });
 }
@@ -175,21 +233,32 @@ function addPeer(id, am_initiator) {
 self.addEventListener('resize', setVideoDimensions);
 
 function createVideoElement(id, stream) {
-  const col = document.createElement("col"), newVid = document.createElement("video"), user = document.createElement("div");
-  col.id = "col-" + id; col.className = "container";
-  newVid.srcObject = stream; newVid.id = id; newVid.playsinline = false; newVid.autoplay = true; newVid.className = "vid";
+  const col = document.createElement("col");
+  col.id = "col-" + id;
+  col.className = "container";
+
+  const newVid = document.createElement("video");
+  newVid.srcObject = stream;
+  newVid.id = id;
+  newVid.playsinline = false;
+  newVid.autoplay = true;
+  newVid.className = "relative overflow-hidden rounded-xl bg-blue-gray-500 bg-clip-border text-white shadow-lg shadow-blue-gray-500/40";
   newVid.onclick = newVid.ontouchstart = () => openPictureMode(newVid, id);
-  user.className = "overlay-text"; user.innerHTML = id;
+
+  const user = document.createElement("div");
+  // user.className = "overlay-text";
+  user.textContent = `ID: ${id}`; // Display the ID more prominently
+
+
   col.append(newVid, user);
   videos.appendChild(col);
 }
+
 
 function openPictureMode(el, id) {
   el.requestPictureInPicture();
   el.onleavepictureinpicture = () => setTimeout(() => document.getElementById(id).play(), 300);
 }
-
-fork.switchMedia = switchCameraOrScreen.bind(null, constraints, "getUserMedia", updateButtons);
 
 fork.shareScreen = switchCameraOrScreen.bind(null, {}, "getDisplayMedia", (newStream) => {
   // Use newStream here

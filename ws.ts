@@ -1,35 +1,26 @@
 import { Handler, HttpError } from "./deps.ts";
 
+// deno-lint-ignore no-explicit-any
 type TAny = any;
 
 const decoder = new TextDecoder();
 const encoder = new TextEncoder();
 const peers = {} as TAny;
-const MAX_USER = 2;
-const MAX_RETRIES = 5;
-const RETRY_INTERVAL = 3000;
-
-let retryCount = 0;
-
-const wsSend = (ws: WebSocket, data: Record<string, TAny>, retryCount = 0) => {
-  if (ws.readyState === WebSocket.OPEN) {
-    ws.send(JSON.stringify(data));
-  } else if (retryCount < MAX_RETRIES) {
-    setTimeout(() => {
-      wsSend(ws, data, retryCount + 1);
-    }, RETRY_INTERVAL);
-  } else {
-    console.error("Max WebSocket retries reached.");
-  }
-};
+// max_user/room
+const MAX_USER = 4;
 
 const tryDecode = (str: string) => {
   try {
     const uint = Uint8Array.from(atob(str).split(",") as Iterable<number>);
-    return JSON.parse(decoder.decode(uint));
+    const ret = JSON.parse(decoder.decode(uint));
+    return ret;
   } catch (_e) {
-    throw new HttpError(400, "Invalid token");
+    throw new HttpError(400, "error token");
   }
+};
+
+export const wsSend = (ws: WebSocket, data: Record<string, TAny>) => {
+  ws.send(JSON.stringify(data));
 };
 
 const middleware: Handler = (rev, next) => {
@@ -73,19 +64,6 @@ const handler: Handler = ({ request, user }) => {
   };
   socket.onmessage = (e) => {
     const { type, data } = JSON.parse(e.data);
-
-    if (type === "videoControl") {
-      // Broadcast video control messages to all peers in the room
-      for (const _id in peers[room]) {
-        if (_id !== id) {
-          wsSend(peers[room][_id], {
-            type: "videoControl",
-            data: data,
-          });
-        }
-      }
-    }
-    
     if (type === "signal") {
       if (!peers[room][data.id]) return;
       wsSend(peers[room][data.id], {

@@ -5,7 +5,7 @@ const Home: FC = () => {
     return (
         <Base>
             <Helmet footer>
-                <footer class="bg-white shadow sm:flex sm:items-center sm:justify-between p-4 sm:p-6 xl:p-8 dark:bg-gray-800 antialiased">
+                <footer class="h-full inset-x-0 bottom-0 shadow sm:flex sm:items-center sm:justify-between p-4 sm:p-6 xl:p-8 bg-gray-800 antialiased">
                     <p class="mb-4 text-sm text-center text-gray-500 dark:text-gray-400 sm:mb-0">
                         &copy; 2024
                         <a href="https://github.com/feross/simple-peer" class="hover:underline" target="_blank">I LOVE YOU RINA</a>. All rights reserved.
@@ -26,20 +26,36 @@ const Home: FC = () => {
                 <script src={"/assets/home.js"}></script>
             </Helmet>
 
-            <section id="home" class="bg-white dark:bg-gray-900">
+            <section id="home" class="bg-gray-900">
                     <div class="grid max-w-screen-xl px-4 py-8 mx-auto lg:gap-8 xl:gap-0 lg:py-16 lg:grid-cols-12">
                         <div class="mr-auto place-self-center lg:col-span-7">
                             <h1 class="max-w-2xl mb-4 text-4xl font-extrabold tracking-tight leading-none md:text-5xl xl:text-6xl dark:text-white">Movie Sync: Watch Together, Wherever</h1>
                             <p class="max-w-2xl mb-6 font-light text-gray-500 lg:mb-8 md:text-lg lg:text-xl dark:text-gray-400">Enjoy movies with friends or your significant other in perfect sync – anytime, anywhere.</p>
-
-                            <form id="form">
-                            <input type="submit" class="inline-flex items-center justify-center px-5 py-3 mr-3 text-base font-medium text-center text-white rounded-lg bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 dark:focus:ring-primary-900">
-                                Create Room
-                                <svg class="w-5 h-5 ml-2 -mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                    <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path>
-                                </svg>
-                            </input>
-                            </form>
+                        <form id="form" class="flex flex-col space-y-8">
+                        <div class="flex flex-col gap-y-8 h-12 space-x-2 w-auto">
+                        <input
+                            title="Can't use special character"
+                            class="bg-transparent border-2 rounded-full py-4 px-6 text-[16px] leading-[22.4px] font-light placeholder:text-white text-white"
+                            type="text"
+                            id="room"
+                            placeholder="Room (no special char)"
+                            pattern="^[a-zA-Z0-9]+$"
+                            required
+                            />
+                        </div>
+                        <div class="flex flex-col gap-y-8 h-12 space-x-2 w-auto">
+                            <input
+                            class="bg-transparent border-2 rounded-full py-4 px-6 text-[16px] leading-[22.4px] font-light placeholder:text-white text-white"
+                            type="text"
+                            id="username"
+                            placeholder="Name"
+                            required
+                            />
+                        </div>
+                            <button type="submit" class="max-w-[200px] h-auto rounded-full bg-white text-black py-3 px-6">
+                                <span class="text-teal-900 font-semibold">Create Room</span>
+                            </button>
+                        </form>
                         </div>
                         <div class="hidden lg:mt-0 lg:col-span-5 lg:flex">
                             <img class="rounded-2xl" src="/assets/img/hero.jpg" alt="mockup"></img>
