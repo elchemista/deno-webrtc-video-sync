@@ -210,24 +210,28 @@ function removePeer(id) {
 function addPeer(id, am_initiator) {
   peers[id] = new SimplePeer({
     initiator: am_initiator,
-    reconnectTimer: 5000,
     stream: localStream,
     config: configuration,
-    trickle: false
   });
 
-  peers[id].on("signal", data => {
-    ws.send(JSON.stringify({ type: "signal", data: { signal: data, id } }));
+  peers[id].on("signal", (data) => {
+    ws.send(JSON.stringify({
+      type: "signal",
+      data: {
+        signal: data,
+        id,
+      },
+    }));
   });
 
   peers[id].on("stream", (stream) => {
-    // Assuming you have a method to handle the creation of video elements for peers
-    if(document.getElementById(id)) {
-        // If video element already exists, just update the stream
-        document.getElementById(id).srcObject = stream;
+    let videoEl = document.getElementById(id);
+    if (!videoEl) {
+      // If video element does not exist, create it
+      videoEl = createVideoElement(id, stream);
     } else {
-        // If video element does not exist, create it
-        createVideoElement(id, stream);
+      // If video element already exists, just update the stream
+      videoEl.srcObject = stream;
     }
     setVideoDimensions();
   });
@@ -236,36 +240,33 @@ function addPeer(id, am_initiator) {
 self.addEventListener('resize', setVideoDimensions);
 
 function createVideoElement(id, stream) {
-  // Create a container for the new video element
   const videoContainer = document.createElement("div");
   videoContainer.className = "container m-1 text-center justify-center";
-  
-  // Create the new video element
-  const newVid = document.createElement("video");
-  newVid.srcObject = stream;
-  newVid.id = id;
-  newVid.setAttribute('autoplay', '');
-  newVid.setAttribute('playsinline', '');
-  // newVid.muted = true; // Mute if it's the local video
-  newVid.className = "rounded-xl bg-blue-gray-500 bg-clip-border text-white shadow-lg shadow-blue-gray-500/40";
 
-  // Create a div for displaying the ID
+  const newVideo = document.createElement("video");
+  newVideo.srcObject = stream;
+  newVideo.id = id;
+  newVideo.autoplay = true;
+  newVideo.playsInline = true;
+  newVideo.className = "rounded-xl bg-blue-gray-500 bg-clip-border text-white shadow-lg shadow-blue-gray-500/40";
+  newVideo.onclick = () => openPictureMode(newVideo, id);
+  newVideo.ontouchstart = () => openPictureMode(newVideo, id);
+
   const idDisplay = document.createElement("div");
   idDisplay.className = "opacity-75 p-1 text-center rounded-xl bg-white bg-clip-border text-gray-700 shadow-md";
   const idSpan = document.createElement("span");
   idSpan.className = "block text-center font-sans text-md font-semibold leading-snug tracking-normal text-blue-gray-900 antialiased";
-  idSpan.textContent = id; // Set the peer's ID
+  idSpan.textContent = id;
   idDisplay.appendChild(idSpan);
 
-  // Append video and ID display to the container
-  videoContainer.appendChild(newVid);
+  videoContainer.appendChild(newVideo);
   videoContainer.appendChild(idDisplay);
 
-  // Finally, append the container to the 'videos' div
   const videosDiv = document.getElementById("videos");
   videosDiv.appendChild(videoContainer);
-}
 
+  return newVideo;
+}
 
 
 function openPictureMode(el, id) {
@@ -349,13 +350,12 @@ function toggleMedia(trackType, onIcon, offIcon) {
   });
 }
 
+// function updateButtons() {
+//   const videoTrack = localStream.getVideoTracks()[0];
+//   vidButton.innerHTML = videoTrack.enabled ? videoEnabledIcon : videoDisabledIcon;
 
-function updateButtons() {
-  const videoTrack = localStream.getVideoTracks()[0];
-  vidButton.innerHTML = videoTrack.enabled ? videoEnabledIcon : videoDisabledIcon;
-
-  muteButton.innerText = localStream.getAudioTracks()[0].enabled ? micUnmute : micMute;
-}
+//   muteButton.innerText = localStream.getAudioTracks()[0].enabled ? micUnmute : micMute;
+// }
 
 fork.inviteFriend = () => {
   const url = window.location.origin + "/?invite=" + info.room;
