@@ -200,7 +200,7 @@ function removePeer(id) {
   if (videoEl) {
     videoEl.srcObject.getTracks().forEach(track => track.stop());
     videoEl.srcObject = null;
-    videosDiv.removeChild(colEl);
+    videosDiv.removeChild(videoEl)
   }
   if (peers[id]) peers[id].destroy();
   delete peers[id];
@@ -216,18 +216,19 @@ function addPeer(id, am_initiator) {
     trickle: false
   });
 
-  // Add a property to track if an answer is expected
-  peers[id].isExpectingAnswer = false;
-
   peers[id].on("signal", data => {
-    if (data.type === 'offer') {
-      peers[id].isExpectingAnswer = true;
-    }
     ws.send(JSON.stringify({ type: "signal", data: { signal: data, id } }));
   });
 
   peers[id].on("stream", (stream) => {
-    createVideoElement(id, stream);
+    // Assuming you have a method to handle the creation of video elements for peers
+    if(document.getElementById(id)) {
+        // If video element already exists, just update the stream
+        document.getElementById(id).srcObject = stream;
+    } else {
+        // If video element does not exist, create it
+        createVideoElement(id, stream);
+    }
     setVideoDimensions();
   });
 }
