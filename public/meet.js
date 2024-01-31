@@ -52,10 +52,11 @@ fork.changeVideoSource = () => {
   const newUrl = prompt("Enter the URL of the video:");
   if (newUrl) {
     const videoElement = document.getElementById('videoPlayer');
-    videoElement.className = ""
+    videoElement.className = "rounded-lg"
     if (videoElement) {
       const sourceElement = videoElement.querySelector('source');
       sourceElement.setAttribute('src', newUrl);
+      sourceElement.setAttribute('class', "rounded-lg");
       videoElement.load();
       videoElement.play();
     } else {
@@ -101,7 +102,7 @@ fork.switchMedia = () => {
 fork.closeChat = () => chatbox.style.display = "none";
 
 function setVideoDimensions() {
-  const maxUsersInRow = 2;
+  const maxUsersInRow = 4;
   const userCount = Object.keys(peers).length + 1; // Include local user
   const screenWidth = window.innerWidth;
   const availableWidth = Math.min(screenWidth, 150 * maxUsersInRow);
@@ -194,11 +195,12 @@ function appendChatMessage({ id, message }) {
 }
 
 function removePeer(id) {
-  const videoEl = document.getElementById(id), colEl = document.getElementById("col-" + id);
-  if (colEl && videoEl) {
+  const videosDiv = document.getElementById("videos");
+  const videoEl = document.getElementById(id)
+  if (videoEl) {
     videoEl.srcObject.getTracks().forEach(track => track.stop());
     videoEl.srcObject = null;
-    videos.removeChild(colEl);
+    videosDiv.removeChild(colEl);
   }
   if (peers[id]) peers[id].destroy();
   delete peers[id];
@@ -233,26 +235,36 @@ function addPeer(id, am_initiator) {
 self.addEventListener('resize', setVideoDimensions);
 
 function createVideoElement(id, stream) {
-  const col = document.createElement("col");
-  col.id = "col-" + id;
-  col.className = "container";
-
+  // Create a container for the new video element
+  const videoContainer = document.createElement("div");
+  videoContainer.className = "container m-1 text-center justify-center";
+  
+  // Create the new video element
   const newVid = document.createElement("video");
   newVid.srcObject = stream;
   newVid.id = id;
-  newVid.playsinline = false;
-  newVid.autoplay = true;
-  newVid.className = "relative overflow-hidden rounded-xl bg-blue-gray-500 bg-clip-border text-white shadow-lg shadow-blue-gray-500/40";
-  newVid.onclick = newVid.ontouchstart = () => openPictureMode(newVid, id);
+  newVid.setAttribute('autoplay', '');
+  newVid.setAttribute('playsinline', '');
+  // newVid.muted = true; // Mute if it's the local video
+  newVid.className = "rounded-xl bg-blue-gray-500 bg-clip-border text-white shadow-lg shadow-blue-gray-500/40";
 
-  const user = document.createElement("div");
-  // user.className = "overlay-text";
-  user.textContent = `ID: ${id}`; // Display the ID more prominently
+  // Create a div for displaying the ID
+  const idDisplay = document.createElement("div");
+  idDisplay.className = "opacity-75 p-1 text-center rounded-xl bg-white bg-clip-border text-gray-700 shadow-md";
+  const idSpan = document.createElement("span");
+  idSpan.className = "block text-center font-sans text-md font-semibold leading-snug tracking-normal text-blue-gray-900 antialiased";
+  idSpan.textContent = id; // Set the peer's ID
+  idDisplay.appendChild(idSpan);
 
+  // Append video and ID display to the container
+  videoContainer.appendChild(newVid);
+  videoContainer.appendChild(idDisplay);
 
-  col.append(newVid, user);
-  videos.appendChild(col);
+  // Finally, append the container to the 'videos' div
+  const videosDiv = document.getElementById("videos");
+  videosDiv.appendChild(videoContainer);
 }
+
 
 
 function openPictureMode(el, id) {
