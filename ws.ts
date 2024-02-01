@@ -75,6 +75,16 @@ const handler: Handler = ({ request, user }) => {
         type: "initSend",
         data: { id },
       });
+    } else if (type === "videoControl") {
+      // Handle video control messages (play, pause)
+      for (const _id in peers[room]) {
+        if (_id !== id) { // Don't send back to the sender
+          wsSend(peers[room][_id], {
+            type: "videoControl",
+            data: { controlType: data.controlType, time: data.time },
+          });
+        }
+      };
     } else if (type === "chat") {
       for (const _id in peers[room]) {
         if (_id !== id) {

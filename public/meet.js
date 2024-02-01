@@ -139,22 +139,6 @@ function setVideoDimensions() {
   });
 }
 
-function handleVideoControl(data) {
-  switch (data.controlType) {
-    case 'play':
-      videoPlayer.currentTime = data.time;
-      videoPlayer.play();
-      break;
-    case 'pause':
-      videoPlayer.currentTime = data.time;
-      videoPlayer.pause();
-      break;
-    case 'seek':
-      videoPlayer.currentTime = data.time;
-      break;
-  }
-}
-
 function init(token, stream) {
   ws = new WebSocket((isHttps ? "wss" : "ws") + "://" + window.location.host + "/ws/" + token);
   ws.onclose = () => Object.keys(peers).forEach(removePeer);
@@ -369,7 +353,7 @@ function updateButtons() {
   const videoTrack = localStream.getVideoTracks()[0];
   vidButton.innerHTML = videoTrack.enabled ? videoEnabledIcon : videoDisabledIcon;
 
-  muteButton.innerHTML = localStream.getAudioTracks()[0].enabled ? micUnmute : micMute;
+  muteButton.innerHTML = localStream.getAudioTracks()[0].enabled ? micMute : micUnmute;
 }
 
 fork.inviteFriend = () => {
