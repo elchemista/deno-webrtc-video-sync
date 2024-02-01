@@ -22,29 +22,48 @@ const localVideo = document.getElementById("localVideo"); // Ensure this ID matc
 
 const videoPlayer = document.getElementById('videoPlayer');
 
+let isProgrammaticChange = false; // Flag to indicate programmatic change
+
 function sendVideoControlMessage(type, currentTime) {
-  const message = {
-    type: "videoControl",
-    data: { controlType: type, time: currentTime }
-  };
-  ws.send(JSON.stringify(message));
+  if (!isProgrammaticChange) {
+    const message = {
+      type: "videoControl",
+      data: { controlType: type, time: currentTime }
+    };
+    ws.send(JSON.stringify(message));
+  }
 }
 
 // Event listeners for the video player
-videoPlayer.addEventListener('play', () => sendVideoControlMessage('play', videoPlayer.currentTime));
-videoPlayer.addEventListener('pause', () => sendVideoControlMessage('pause', videoPlayer.currentTime));
+videoPlayer.addEventListener('play', () => {
+  if (!isProgrammaticChange) {
+    sendVideoControlMessage('play', videoPlayer.currentTime);
+  }
+});
+videoPlayer.addEventListener('pause', () => {
+  if (!isProgrammaticChange) {
+    sendVideoControlMessage('pause', videoPlayer.currentTime);
+  }
+});
+
 
 function handleVideoControl(data) {
+  isProgrammaticChange = true; // Set flag to indicate programmatic change
+
   switch (data.controlType) {
     case 'play':
-      // Set currentTime BEFORE play to ensure synchronization
       videoPlayer.currentTime = data.time;
-      videoPlayer.play();
+      videoPlayer.play().then(() => {
+        isProgrammaticChange = false; // Reset flag after operation
+      }).catch(error => {
+        console.error("Error attempting to play video:", error);
+        isProgrammaticChange = false; // Ensure flag is reset even if there's an error
+      });
       break;
     case 'pause':
-      // Set currentTime BEFORE pause for accurate pause position
       videoPlayer.currentTime = data.time;
       videoPlayer.pause();
+      isProgrammaticChange = false; // Reset flag
       break;
   }
 }
@@ -191,18 +210,20 @@ function appendChatMessage({ id, message }) {
   chatMessage.innerHTML += `<div class="chat-message"><b>${id.split("@")[0]}: </b>${message}</div>`;
 }
 
+
 function removePeer(id) {
   const videosDiv = document.getElementById("videos");
-  const videoEl = document.getElementById(id)
-  if (videoEl) {
+  const videoEl = document.getElementById(id);
+  if (videoEl && videosDiv.contains(videoEl)) { // Check if videosDiv actually contains videoEl
     videoEl.srcObject.getTracks().forEach(track => track.stop());
     videoEl.srcObject = null;
-    videosDiv.removeChild(videoEl)
+    videosDiv.removeChild(videoEl); // Now safe to remove
   }
   if (peers[id]) peers[id].destroy();
   delete peers[id];
   setVideoDimensions();
 }
+
 
 function addPeer(id, am_initiator) {
   peers[id] = new SimplePeer({
