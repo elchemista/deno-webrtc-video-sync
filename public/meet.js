@@ -96,7 +96,7 @@ function init(token, stream) {
       localVideo.srcObject = stream;
       localStream = stream;
       info = data;
-      document.getElementById("settings").style.display = "inline-block";
+      
       document.getElementById("me").innerHTML = `Me: ${info.id}`;
     } else if (type === "initSend") addPeer(data.id, true);
     else if (type === "removePeer") removePeer(data.id);
