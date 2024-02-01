@@ -33,7 +33,21 @@ function sendVideoControlMessage(type, currentTime) {
 // Event listeners for the video player
 videoPlayer.addEventListener('play', () => sendVideoControlMessage('play', videoPlayer.currentTime));
 videoPlayer.addEventListener('pause', () => sendVideoControlMessage('pause', videoPlayer.currentTime));
-videoPlayer.addEventListener('seeked', () => sendVideoControlMessage('seek', videoPlayer.currentTime));
+
+function handleVideoControl(data) {
+  switch (data.controlType) {
+    case 'play':
+      // Set currentTime BEFORE play to ensure synchronization
+      videoPlayer.currentTime = data.time;
+      videoPlayer.play();
+      break;
+    case 'pause':
+      // Set currentTime BEFORE pause for accurate pause position
+      videoPlayer.currentTime = data.time;
+      videoPlayer.pause();
+      break;
+  }
+}
 
 
 meetElement.style.display = token ? "block" : "none";
@@ -247,12 +261,12 @@ function createVideoElement(id, stream) {
   newVideo.id = id;
   newVideo.autoplay = true;
   newVideo.playsInline = true;
-  newVideo.className = "rounded-xl bg-blue-gray-500 bg-clip-border text-white shadow-lg shadow-blue-gray-500/40";
+  newVideo.className = "opacity-25 rounded-xl bg-blue-gray-500 bg-clip-border text-white shadow-lg shadow-blue-gray-500/40";
   newVideo.onclick = () => openPictureMode(newVideo, id);
   newVideo.ontouchstart = () => openPictureMode(newVideo, id);
 
   const idDisplay = document.createElement("div");
-  idDisplay.className = "opacity-75 p-1 text-center rounded-xl bg-white bg-clip-border text-gray-700 shadow-md";
+  idDisplay.className = "opacity-25 p-1 text-center rounded-xl bg-white bg-clip-border text-gray-700 shadow-md";
   const idSpan = document.createElement("span");
   idSpan.className = "block text-center font-sans text-md font-semibold leading-snug tracking-normal text-blue-gray-900 antialiased";
   idSpan.textContent = id;
@@ -292,6 +306,7 @@ function switchCameraOrScreen(constraints, method, callback) {
     localVideo.srcObject = newStream;
     callback(newStream); // Pass newStream as an argument
   });
+  updateButtons();
 }
 
 function stopTracks(stream) {
@@ -347,13 +362,14 @@ function toggleMedia(trackType, onIcon, offIcon) {
       }
     }
   });
+  updateButtons()
 }
 
 function updateButtons() {
   const videoTrack = localStream.getVideoTracks()[0];
   vidButton.innerHTML = videoTrack.enabled ? videoEnabledIcon : videoDisabledIcon;
 
-  muteButton.innerText = localStream.getAudioTracks()[0].enabled ? micUnmute : micMute;
+  muteButton.innerHTML = localStream.getAudioTracks()[0].enabled ? micUnmute : micMute;
 }
 
 fork.inviteFriend = () => {
