@@ -214,10 +214,12 @@ function appendChatMessage({ id, message }) {
 function removePeer(id) {
   const videosDiv = document.getElementById("videos");
   const videoEl = document.getElementById(id);
+  const nameEl = document.getElementById(`name-${id}`);
   if (videoEl && videosDiv.contains(videoEl)) { // Check if videosDiv actually contains videoEl
     videoEl.srcObject.getTracks().forEach(track => track.stop());
     videoEl.srcObject = null;
     videosDiv.removeChild(videoEl); // Now safe to remove
+    videosDiv.removeChild(nameEl)
   }
   if (peers[id]) peers[id].destroy();
   delete peers[id];
@@ -271,10 +273,12 @@ function createVideoElement(id, stream) {
   newVideo.ontouchstart = () => openPictureMode(newVideo, id);
 
   const idDisplay = document.createElement("div");
+  idDisplay.id = `name-${id}`;
   idDisplay.className = "opacity-25 p-1 text-center rounded-xl bg-white bg-clip-border text-gray-700 shadow-md";
   const idSpan = document.createElement("span");
   idSpan.className = "block text-center font-sans text-md font-semibold leading-snug tracking-normal text-blue-gray-900 antialiased";
   idSpan.textContent = id;
+  idSpan.id = id;
   idDisplay.appendChild(idSpan);
 
   videoContainer.appendChild(newVideo);
