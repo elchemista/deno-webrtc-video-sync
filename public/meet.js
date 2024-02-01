@@ -214,10 +214,11 @@ function appendChatMessage({ id, message }) {
 function removePeer(id) {
   const videosDiv = document.getElementById("videos");
   const videoEl = document.getElementById(id);
+  const videoContainer = document.getElementById(`container-${id}`);
   if (videoEl && videosDiv.contains(videoEl)) { // Check if videosDiv actually contains videoEl
     videoEl.srcObject.getTracks().forEach(track => track.stop());
     videoEl.srcObject = null;
-    videosDiv.removeChild(videoEl); // Now safe to remove
+    videosDiv.removeChild(videoContainer); // Now safe to remove
   }
   if (peers[id]) peers[id].destroy();
   delete peers[id];
@@ -259,7 +260,7 @@ self.addEventListener('resize', setVideoDimensions);
 
 function createVideoElement(id, stream) {
   const videoContainer = document.createElement("div");
-  videoContainer.id = id;
+  videoContainer.id = `container-${id}`;
   videoContainer.className = "container m-1 text-center justify-center";
 
   const newVideo = document.createElement("video");
