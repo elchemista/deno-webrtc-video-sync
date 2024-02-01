@@ -11,7 +11,7 @@ const Base: FC = ({children}) => {
                 <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
                 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
                 <title>RINA Movie</title>
-               
+                <script src="https://unpkg.com/simple-peer@9.11.1/simplepeer.min.js"></script>
                 <meta name="author" content="Elchemista" />
                 <meta name="description" content="Simple webRTC with Deno native websocket" />
 
