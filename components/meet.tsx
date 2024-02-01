@@ -68,11 +68,11 @@ const Meet: FC<{ isDev: boolean }> = ({ isDev }) => {
   
         </div>
       </nav>
-      
+
       <div id="meet" className="z-10 absolute top-0 right-4">
-        <div className="flex flex-col w-full h-full" id="videos">
+        <div className="row flex flex-col w-full h-full" id="videos">
           <div class="container m-1 text-center justify-center">
-            <video id="localVideo" className="rounded-lg" layout="fill" alt="img-blur-shadow" autoplay muted></video>
+            <video id="localVideo" className="vid rounded-lg" layout="fill" alt="img-blur-shadow" autoplay muted></video>
             <div class="opacity-25 p-1 text-center rounded-xl bg-white bg-clip-border text-gray-700 shadow-md">
               <span id="me" class="block text-center font-sans text-md font-semibold leading-snug tracking-normal text-blue-gray-900 antialiased">
                 Loading
