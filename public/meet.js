@@ -187,7 +187,6 @@ function handleMessage({ type, data }, stream) {
 function setupLocalStream(stream, data) {
   localVideo.srcObject = localStream = stream;
   info = data;
-  // document.getElementById("settings").style.display = "inline-block";
 }
 
 function appendChatMessage({ id, message }) {
@@ -350,12 +349,12 @@ function toggleMedia(trackType, onIcon, offIcon) {
   });
 }
 
-// function updateButtons() {
-//   const videoTrack = localStream.getVideoTracks()[0];
-//   vidButton.innerHTML = videoTrack.enabled ? videoEnabledIcon : videoDisabledIcon;
+function updateButtons() {
+  const videoTrack = localStream.getVideoTracks()[0];
+  vidButton.innerHTML = videoTrack.enabled ? videoEnabledIcon : videoDisabledIcon;
 
-//   muteButton.innerText = localStream.getAudioTracks()[0].enabled ? micUnmute : micMute;
-// }
+  muteButton.innerText = localStream.getAudioTracks()[0].enabled ? micUnmute : micMute;
+}
 
 fork.inviteFriend = () => {
   const url = window.location.origin + "/?invite=" + info.room;
