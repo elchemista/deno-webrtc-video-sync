@@ -331,7 +331,7 @@ fork.toggleVid = toggleMedia.bind(null, "getVideoTracks", videoEnabledIcon, vide
 
 function toggleMedia(trackType, onIcon, offIcon) {
   const isAudio = trackType === "getAudioTracks";
-  const button = isAudio ? muteButton : vidButton; // Assuming vidButton is your video toggle button
+  const button = isAudio ? micMute : micUnmute; // Assuming vidButton is your video toggle button
 
   localStream[trackType]().forEach(track => {
     track.enabled = !track.enabled;
